@@ -56,46 +56,87 @@ class G1CubeLiftEnvCfg(LiftEnvCfg):
             scale=1.0,                  
             use_default_offset=True,
         )
-        self.actions.gripper_action = mdp.BinaryJointPositionActionCfg( 
-            asset_name="robot",
-            joint_names=[                
-                "right_index_.*_joint",
-                "right_little_.*_joint",
-                "right_middle_.*_joint",
-                "right_ring_.*_joint",
-                "right_thumb_.*_joint",
-                ],
-            # open_command_expr={    
-            #     "right_index_.*_joint": 0.0,
-            #     "right_little_.*_joint": 0.0,
-            #     "right_middle_.*_joint" : 0.0,
-            #     "right_ring_.*_joint" : 0.0,
-            #     "right_thumb_.*_joint" : 0.0},
-            # close_command_expr={    
-            #     "right_index_.*_joint": 0.8,
-            #     "right_little_.*_joint": 0.8,
-            #     "right_middle_.*_joint" : 0.8,
-            #     "right_ring_.*_joint" : 0.8,
-            #     "right_thumb_.*_joint" : 0.8},
-            open_command_expr={    
-                "right_index_.*_joint": 0.3,
-                "right_little_.*_joint": 0.3,
-                "right_middle_.*_joint" : 0.3,
-                "right_ring_.*_joint" : 0.3,
-                "right_thumb_.*_joint" : 0.3},
-            close_command_expr={    
-                "right_index_.*_joint": 0.8,
-                "right_little_.*_joint": 0.8,
-                "right_middle_.*_joint" : 0.8,
-                "right_ring_.*_joint" : 0.8,
-                "right_thumb_.*_joint" : 0.8},
+        # 바이너리 액션은 모든 관절이 한 개로 묶여서 제어됨
+        # self.actions.gripper_action = mdp.BinaryJointPositionActionCfg( 
+        #     asset_name="robot",
+        #     joint_names=[                
+        #         "right_index_.*_joint",
+        #         "right_little_.*_joint",
+        #         "right_middle_.*_joint",
+        #         "right_ring_.*_joint",
+        #         "right_thumb_.*_joint",
+        #         ],
+        #     # open_command_expr={    
+        #     #     "right_index_.*_joint": 0.3,
+        #     #     "right_little_.*_joint": 0.3,
+        #     #     "right_middle_.*_joint" : 0.3,
+        #     #     "right_ring_.*_joint" : 0.3,
+        #     #     "right_thumb_.*_joint" : 0.3},
+        #     # close_command_expr={    
+        #     #     "right_index_.*_joint": 0.8,
+        #     #     "right_little_.*_joint": 0.8,
+        #     #     "right_middle_.*_joint" : 0.8,
+        #     #     "right_ring_.*_joint" : 0.8,
+        #     #     "right_thumb_.*_joint" : 0.8},
 
-        )
+        #     open_command_expr={    
+        #         "right_index_.*_joint": 0.0,
+        #         "right_little_.*_joint": 0.0,
+        #         "right_middle_.*_joint" : 0.0,
+        #         "right_ring_.*_joint" : 0.0,
+        #         "right_thumb_.*_joint" : 0.0},
+        #     close_command_expr={    
+        #         "right_index_.*_joint": 3.14,
+        #         "right_little_.*_joint": 3.14,
+        #         "right_middle_.*_joint" : 3.14,
+        #         "right_ring_.*_joint" : 3.14,
+        #         "right_thumb_.*_joint" : 3.14},
+        # )
+        self.actions.gripper_action = mdp.JointPositionActionCfg(
+            asset_name = "robot",
+            joint_names = [
+                "right_index_1_joint",
+                "right_index_2_joint",
+                "right_little_1_joint",
+                "right_little_2_joint",
+                "right_middle_1_joint",
+                "right_middle_2_joint",
+                "right_ring_1_joint",
+                "right_ring_2_joint",
+                "right_thumb_1_joint",
+                "right_thumb_2_joint",
+                "right_thumb_3_joint",
+                "right_thumb_4_joint"
+            ],
+            scale = {
+                "right_index_1_joint": 1.0472,
+                "right_index_2_joint": 1.5708,
+                "right_little_1_joint": 1.0472,
+                "right_little_2_joint": 1.5708,
+                "right_middle_1_joint": 1.0472,
+                "right_middle_2_joint": 1.5708,
+                "right_ring_1_joint": 1.0472,
+                "right_ring_2_joint": 1.5708,
+                "right_thumb_1_joint": 1.1641,
+                "right_thumb_2_joint": 0.5864,
+                "right_thumb_3_joint": 0.5,
+                "right_thumb_4_joint": 1.5708,
+            },            
+            use_default_offset = True,
+        ) 
+
 
 
         # Set the body name for the end effector
+        # roll: x축, pitch: y축, yaw: z축 회전을 뜻함
+        # 오른속 기준 + 반시계 방향, - 시계 방향 회전을 뜻함 => 오른손 법칙 - 엄지:z, 검지:x, 중지:y 축
         self.commands.object_pose.body_name = "right_middle_1"
-        self.commands.object_pose.ranges.roll = [-math.pi / 2, 0.0]
+        self.commands.object_pose.ranges.pos_x = [0.3, 0.4]
+        self.commands.object_pose.ranges.pos_y = [-0.25, 0.05]
+        self.commands.object_pose.ranges.pos_z = [0.2, 0.3]
+        # self.commands.object_pose.ranges.roll = [math.pi / 2, math.pi / 2]
+        self.commands.object_pose.ranges.pitch = [-math.pi /2, -math.pi /2]
+        self.commands.object_pose.ranges.yaw = [-math.pi /2, -math.pi /2] 
 
 
         # Set Cube as object

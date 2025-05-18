@@ -528,7 +528,8 @@ G1_WITH_HAND_CFG = ArticulationCfg(
         "hands_right": ImplicitActuatorCfg(
             joint_names_expr=[
                 "right_index_.*", "right_middle_.*", "right_ring_.*",
-                "right_little_.*", "right_thumb_.*"
+                "right_little_.*", 
+                "right_thumb_.*"
             ],
             effort_limit_sim = {
                 "right_index_.*" : 10,

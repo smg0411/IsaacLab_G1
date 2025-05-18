@@ -23,6 +23,8 @@ from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
 
 from . import mdp
 
+import math
+
 ##
 # Scene definition
 ##
@@ -89,7 +91,7 @@ class ActionsCfg:
 
     # will be set by agent env cfg
     arm_action: mdp.JointPositionActionCfg | mdp.DifferentialInverseKinematicsActionCfg = MISSING
-    gripper_action: mdp.BinaryJointPositionActionCfg = MISSING
+    gripper_action: mdp.BinaryJointPositionActionCfg | mdp.JointPositionActionCfg = MISSING
 
 
 @configclass
@@ -125,7 +127,7 @@ class EventCfg:
         mode="reset",
         params={
             # "pose_range": {"x": (-0.1, 0.1), "y": (-0.25, 0.25), "z": (0.0, 0.0)},
-            "pose_range": {"x": (-0.1, 0.0), "y": (-0.2, 0.2), "z": (0.0, 0.0)},
+            "pose_range": {"x": (-0.1, 0.0), "y": (-0.2, 0.1), "z": (0.0, 0.0)},
             "velocity_range": {},
             "asset_cfg": SceneEntityCfg("object", body_names="Object"),
         },
@@ -140,10 +142,12 @@ class RewardsCfg:
 
     # lifting_object = RewTerm(func=mdp.object_is_lifted, params={"minimal_height": 0.04}, weight=15.0)
 
-    reaching_object = RewTerm(func=mdp.object_ee_distance, params={"std": 0.1}, weight=5)
+    reaching_object = RewTerm(func=mdp.object_ee_distance, params={"std": 0.1}, weight=5.0)
 
     lifting_object = RewTerm(func=mdp.object_is_lifted, params={"minimal_height": 0.04}, weight=10.0)
 
+    # lifting_object_with_hand = RewTerm(func=mdp.object_and_ee_lifted_together, params={"minimal_height":0.04, "max_z_diff":0.02},
+    #                           weight=10.0)
 
     object_goal_tracking = RewTerm(
         func=mdp.object_goal_distance,
@@ -156,6 +160,8 @@ class RewardsCfg:
         params={"std": 0.05, "minimal_height": 0.04, "command_name": "object_pose"},
         weight=5.0,
     )
+
+    # palm_upward = RewTerm(func=mdp.penalize_palm_upward, weight=-1e-1)
 
     # action penalty
     action_rate = RewTerm(func=mdp.action_rate_l2, weight=-1e-4)
@@ -183,15 +189,15 @@ class CurriculumCfg:
     """Curriculum terms for the MDP."""
 
     action_rate = CurrTerm(
-        func=mdp.modify_reward_weight, params={"term_name": "action_rate", "weight": -1e-3, "num_steps": 24000}
+        func=mdp.modify_reward_weight, params={"term_name": "action_rate", "weight": -1e-4, "num_steps": 10000}
     )
 
     joint_vel = CurrTerm(
-        func=mdp.modify_reward_weight, params={"term_name": "joint_vel", "weight": -1e-3, "num_steps": 24000}
+        func=mdp.modify_reward_weight, params={"term_name": "joint_vel", "weight": -1e-3, "num_steps": 10000}
     )
 
     reaching_object = CurrTerm(
-        func=mdp.modify_reward_weight, params={"term_name": "reaching_object", "weight": 3.5, "num_steps": 15000}
+        func=mdp.modify_reward_weight, params={"term_name": "reaching_object", "weight": 3.5, "num_steps": 24000}
     )
 
     lifting_object = CurrTerm(
